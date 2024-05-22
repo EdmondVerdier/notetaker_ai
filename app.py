@@ -5,14 +5,13 @@ from audio_recorder_streamlit import audio_recorder
 from src.utils.get_transcription import get_transcription
 from src.utils.get_answer import get_answer
 from src.utils.generate_chunks import generate_chunks
-
-import chromadb
-from chromadb.db.base import UniqueConstraintError
+from src.utils.initialise_vector_store import initialise_vector_store
 
 st.header("AI Note Taker 🤖")
 st.write("Welcome to the AI Note Taker! 🎉")
 
 AUDIO_PATH = Path("audio.wav")
+COLLECTION_NAME = "ai_notetaker"
 
 audio_bytes = audio_recorder()
 if audio_bytes:
@@ -25,17 +24,10 @@ if audio_bytes:
     st.write(transcription)
 
     chunks = generate_chunks(transcription)
-    chroma_client = chromadb.Client()
 
-    # Create a collection if it doesn't exist
-    try:
-        collection = chroma_client.create_collection(name="ai_notetaker")
-    except UniqueConstraintError:
-        collection = chroma_client.get_collection(name="ai_notetaker")
-
-    collection.add(documents = chunks,
-                    ids = [str(i) for i in range(len(chunks))])
+    collection = initialise_vector_store(chunks)
     
+    # Display the chunks
     st.write("Chunks:")
     for i, chunk in enumerate(chunks):
         st.write(f"{i}: {chunk}")
