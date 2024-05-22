@@ -1,6 +1,7 @@
 from pathlib import Path
 import streamlit as st
 from audio_recorder_streamlit import audio_recorder
+import chromadb
 
 from src.utils.get_transcription import get_transcription
 from src.utils.get_answer import get_answer
@@ -25,7 +26,9 @@ if audio_bytes:
 
     chunks = generate_chunks(transcription)
 
-    collection = initialise_vector_store(chunks)
+
+    chroma_client = chromadb.Client()
+    collection = initialise_vector_store(chroma_client, chunks)
     
     # Display the chunks
     st.write("Chunks:")

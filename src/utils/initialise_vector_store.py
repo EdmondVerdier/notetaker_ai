@@ -1,11 +1,11 @@
 import chromadb    
 
 from chromadb.db.base import UniqueConstraintError
+from chromadb.api import ClientAPI
 
 COLLECTION_NAME = "ai_notetaker"
 
-def initialise_vector_store(chunks : list[str]):
-    chroma_client = chromadb.Client()
+def initialise_vector_store(chroma_client: ClientAPI, chunks : list[str]):
 
     # Create a collection if it doesn't exist and refresh it if it does
     try:
