@@ -6,8 +6,6 @@ from src.utils.get_transcription import get_transcription
 from src.utils.get_answer import get_answer
 from src.utils.generate_chunks import generate_chunks
 
-import chromadb
-
 st.header("AI Note Taker 🤖")
 st.write("Welcome to the AI Note Taker! 🎉")
 
