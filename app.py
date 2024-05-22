@@ -1,6 +1,7 @@
 from pathlib import Path
 import streamlit as st
 from audio_recorder_streamlit import audio_recorder
+import chromadb
 
 from src.utils.get_transcription import get_transcription
 from src.utils.get_answer import get_answer
@@ -9,6 +10,9 @@ from src.utils.initialise_vector_store import initialise_vector_store
 
 st.header("AI Note Taker 🤖")
 st.write("Welcome to the AI Note Taker! 🎉")
+
+if 'message_history' not in st.session_state:
+    st.session_state['message_history'] = ''
 
 AUDIO_PATH = Path("audio.wav")
 COLLECTION_NAME = "ai_notetaker"
@@ -25,7 +29,10 @@ if audio_bytes:
 
     chunks = generate_chunks(transcription)
 
-    collection = initialise_vector_store(chunks)
+
+    chroma_client = chromadb.Client()
+
+    collection = initialise_vector_store(chroma_client, chunks)
     
     # Display the chunks
     st.write("Chunks:")
@@ -44,9 +51,14 @@ if audio_bytes:
             message += f"Context: {results['documents']}"
         message += f"""
                 Question: {question}
-                If the answer is not in the context above, please answer with empty string "Not in the context".
+                You are a helpful assistant. You will be given a context and a discussion. Answer only using this information.
+                If you can't find the answer, please say "I don't know".
                 Answer:
             """
+        
+        st.session_state["message_history"] += f"\n\n {message}"
 
-        answer = get_answer(message)
+        answer = get_answer(st.session_state["message_history"])
+        st.session_state["message_history"] += answer
+
         st.write(answer)
