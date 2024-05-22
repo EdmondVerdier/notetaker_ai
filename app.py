@@ -26,7 +26,6 @@ if audio_bytes:
 
     chunks = generate_chunks(transcription)
 
-
     chroma_client = chromadb.Client()
     collection = initialise_vector_store(chroma_client, chunks)
     
